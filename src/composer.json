@@ -1,0 +1,12 @@
+{
+    "name": "zookeeper/laravel-zookeeper",
+    "description": "zookeeper for laravel",
+    "authors": [
+        {
+            "name":"liyu",
+            "email": "lzly216@163.com"
+        }
+
+    ],
+    "require": {}
+}
