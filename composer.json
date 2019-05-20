@@ -9,8 +9,7 @@
 
     ],
     "minimum-stability": "dev",
-    "require": {},
-    "require-dev": {
+    "require": {
         "zookeeper/zookeeper-laravel": "dev-master"
     },
     "autoload": {
