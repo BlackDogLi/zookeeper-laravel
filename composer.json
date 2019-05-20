@@ -8,7 +8,7 @@
         }
 
     ],
-    "minimum-stability": "master",
+    "minimum-stability": "dev",
     "require": {
         "zookeeper/zookeeper-laravel": "dev-master"
     },
