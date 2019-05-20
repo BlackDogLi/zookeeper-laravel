@@ -8,5 +8,10 @@
         }
 
     ],
-    "require": {}
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Ly\\Zookeeper\\": "src/"
+        }
+    }
 }
