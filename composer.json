@@ -1,6 +1,7 @@
 {
     "name": "zookeeper/laravel-zookeeper",
     "description": "zookeeper for laravel",
+    "license": "MIT",
     "authors": [
         {
             "name":"liyu",
@@ -9,6 +10,7 @@
 
     ],
     "minimum-stability": "dev",
+    "require": {},
     "autoload": {
         "psr-4": {
             "Ly\\Zookeeper\\": "src/"
