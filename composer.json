@@ -10,7 +10,8 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "zookeeper/zookeeper-laravel": "dev-master"
+        "zookeeper/zookeeper-laravel": "dev-master",
+        "zookeeper/data-fixtures": "@dev"
     },
     "autoload": {
         "psr-4": {
