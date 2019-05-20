@@ -8,7 +8,11 @@
         }
 
     ],
+    "minimum-stability": "dev",
     "require": {},
+    "require-dev": {
+        "zookeeper/zookeeper-laravel": "dev-master"
+    },
     "autoload": {
         "psr-4": {
             "Ly\\Zookeeper\\": "src/"
