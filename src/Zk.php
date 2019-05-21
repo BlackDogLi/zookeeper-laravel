@@ -63,7 +63,7 @@ class Zk
      * @param string $nodeName
      * @return string
      */
-    public function getConf ($nodeName = '')
+    public function getNode ($nodeName = '')
     {
         $data = '';
         $path = $this->zkRootPath. DIRECTORY_SEPARATOR . trim($nodeName, '/');

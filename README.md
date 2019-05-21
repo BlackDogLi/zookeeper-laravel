@@ -28,3 +28,19 @@ If you need use Laravel Facades, add the `aliases` array in `config/app.php`:
         ],
     ]
 ```
+
+## Using
+```$xslt
+//example
+<?php
+use Ly\Zookeeper\Facades\Zk;
+
+class TesxtController extends controller {
+
+    public function test ()
+    {
+        $nodeValue = ZK::getNode('usercenter/userhost');
+    }
+}
+
+```
