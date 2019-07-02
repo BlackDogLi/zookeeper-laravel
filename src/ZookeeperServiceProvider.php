@@ -3,11 +3,15 @@
 namespace Ly\Zookeeper;
 
 use Illuminate\Support\ServiceProvider;
+use Ly\Zookeeper\Commands\ZookeeperServerCommand;
 
 
 class ZookeeperServiceProvider extends ServiceProvider
 {
+    
+    protected $defer = false;
 
+    protected static $server;
     /**
      * Bootstrap services.
      *
@@ -27,8 +31,41 @@ class ZookeeperServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('zk', function ($app) {
-            return new Zk($app['config']);
+        $this->registerServer();
+        $this->registerCommands();
+    }
+
+    /**
+     * @Desc Register Zookeeper Server
+     */
+    protected function registerServer ()
+    {
+        $this->app->singleton(Zk::class, function ($app) {
+            
+            if (is_null(static::$server)) {
+                $this->createZookeeperServer();
+            }
+            return static::$server;
         });
+        $this->app->alias(Zk::class, 'zk');
+    }
+
+    /**
+     * @Desc Regiter Commands
+     */
+    protected function registerCommands ()
+    {
+        $this->commands([
+            ZookeeperServerCommand::class,
+        ]);
+    }
+
+    /**
+     * @Desc Create Zookeeper server
+     */
+    protected function createZookeeperServer ()
+    {
+        $config = $this->app->make('config')->get('zk_config');
+        static::$server = new Zk($this->app,'laravel', $config);
     }
 }

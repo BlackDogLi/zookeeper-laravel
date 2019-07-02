@@ -1,0 +1,112 @@
+<?php
+/**
+ * User: ly
+ * Date: 2019/6/21
+ * Time: 10:56
+ */
+namespace Ly\Zookeeper\Commands;
+use Illuminate\Console\Command;
+use Ly\Zookeeper\Zk;
+use Symfony\Component\Process\Process;
+
+class ZookeeperServerCommand extends Command
+{
+
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'zookeeper:server {action : start|stop|restart|reload}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Zookeeper Cache config';
+
+    /**
+     * The console command action. start|stop|restart|reload
+     * 
+     * @var string
+     */
+    protected $action;
+
+    /**
+     * The pid.
+     * @var int
+     */
+    protected  $currentPid;
+
+    /**
+     * The configs for this package.
+     *
+     * @var array
+     */
+    protected $config;
+
+    /**
+     * Excute the console command.
+     *
+     */
+    public function handle ()
+    {
+        $this->checkEnviroment();
+        $this->loadConfig();
+        $this->initAction();
+        $this->runAction();
+    }
+
+    /**
+     * Check running enviroment
+     */
+    protected function checkEnviroment ()
+    {
+        if (! extension_loaded('zookeeper')) {
+            $this->error("Can't detect zookeeper extension installed.");
+
+            exit(1);
+        }
+    }
+
+    /**
+     * Load configs
+     */
+    protected function loadConfig ()
+    {
+        $this->config = $this->laravel->make('config')->get('zk_config');
+    }
+
+    /**
+     * Intitalize command action
+     */
+    protected function initAction ()
+    {
+        $this->action = $this->argument('action');
+
+        if (! in_array($this->action, ['start', 'stop', 'restart', 'reload'], true)) {
+            $this->error("Invalid argument '{$this->action}' . Expected 'start', 'stop', 'restart'.");
+        }
+    }
+
+    /**
+     * Run action
+     */
+    protected function runAction ()
+    {
+        $this->{$this->action}();
+    }
+
+    /**
+     * Start
+     */
+    protected function start ()
+    {
+        $zk = $this->laravel->make(Zk::class);
+        $zk->run();
+        $config = $zk->getConfig();
+        $this->info("Zoookeeper data cached to {$config['cache']} successfully!");
+    }
+
+}
