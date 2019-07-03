@@ -65,10 +65,10 @@ class Zk
     public function __construct (Container $container, $framework, $config)
     {
         $this->container = $container;
-         $aa = $this->container->make('config');
+        $this->container->make('config');
         $this->setFramework($framework);
         $this->setConfig($config);
-        $this->init();
+        $this->setZkRootPath();
     }
 
     /**
@@ -76,9 +76,17 @@ class Zk
      */
     public function run ()
     {
-        $this->getNode($this->zkRootPath);
+        $this->init();
     }
 
+    /**
+     * @Desc cache
+     */
+    public function cache ()
+    {
+        $this->init(false);
+        $this->getNode($this->zkRootPath);
+    }
     /**
      * @Desc set Framework
      *
@@ -120,16 +128,19 @@ class Zk
     {
         return $this->config;
     }
+
     /**
      * @Desc connection init
+     * @param bool $isWatch
      */
-    protected function init()
+    protected function init($isWatch = true)
     {
-        //Set Zookeeper Rootpath
-        $this->setZkRootPath();
-
         try {
-            $this->zk = new Zookeeper($this->config['host']);
+            if (! $isWatch) {
+                $this->zk = new Zookeeper($this->config['host']);
+            } else {
+                $this->zk = new Zookeeper($this->config['host'],[$this,'watch'], 10000);
+            }
         } catch (\Exception $e) {
             echo 'Zookeeper connected failed';
             exit();
@@ -137,7 +148,7 @@ class Zk
     }
 
     /**
-     * @Desc 监控回调事件{连接事件 节点事件 子节点事件}
+     * @Desc Monitor callback events{connection nodeEvent childNodeEvent}
      * @param $eventType
      * @param $connectionState
      * @param $path
@@ -146,25 +157,25 @@ class Zk
     {
         switch ($eventType) {
             case Zookeeper::CREATED_EVENT:
-                // 1 数据监控返回,节点创建,需要watch一个不存在的节点,通过exists监控,通过create操作触发
+                // 1 create node event 
             case Zookeeper::DELETED_EVENT:
-                // 2 数据监控返回,节点删除,通过 exists 和 get 监控,通过 delete 操作触发
+                // 2 delete node event
             case Zookeeper::CHANGED_EVENT:
-                // 3 数据监控返回, 节点数据改变, 通过 exists 和 get 监控, 通过set操作触发
+                // 3 change the nodeValue
                 $this->getNodeValue($path);
                 break;
             case Zookeeper::CHILD_EVENT:
-                // 4 节点监控返回,通过 getchild 监控, 通过子节点的 delete 和 create 操作触发
+                // 4 watch the child create or delete event
                 $this->getNode($path);
                 break;
             case Zookeeper::SESSION_EVENT:
-                // -1 会话监控返回,客户端与服务端断开或重连时触发
+                // -1 client disconnects or reconnect
                 if (3 == $connectionState) {
                     $this->getNode($this->zkRootPath);
                 }
                 break;
             case Zookeeper::NOTWATCHING_EVENT:
-                // -2 watch移除事,服务端不再回调客户端
+                // -2 remove the watch event
             default:
         }
     }
@@ -192,41 +203,21 @@ class Zk
      */
     protected function getNodeValue($nodePath)
     {
-        $node = str_replace($this->zkRootPath . DIRECTORY_SEPARATOR,'', $nodePath);
-
+        $node = trim(str_replace('/', '.', str_replace($this->zkRootPath . DIRECTORY_SEPARATOR,'', $nodePath)));
         if ($this->zk->exists($nodePath)) {
             $stat = [];
             $nodeValue = $this->zk->get($nodePath, [$this, 'watch'], $stat);
-            $this->cacheNodeVulue($node, $nodeValue);
+            $this->data[$node] = $nodeValue;
         } else {
-            $this->dropNode ($node);
+            if(isset ($this->data[$node])) {
+                unset ($this->data[$node]);
+            }
         }
-    }
 
-    /**
-     *
-     * @param $node
-     * @param $nodeValue
-     */
-    protected function cacheNodeVulue ($node, $nodeValue)
-    {
-        $node = trim(str_replace('/', '.', $node));
-        $this->data[$node] = $nodeValue;
         $this->cacheData();
     }
 
-    /**
-     * @Desc drop the from CaceConfig
-     * @param $node
-     */
-    protected function dropNode ($node)
-    {
-        $data = require $this->config['cache'] . '/config.php';
-        if (isset($data[$node])) {
-            unset ($data[$node]);
-        }
-        $this->file->put($this->config['cache'] . '/config.php', '<?php return '. var_export($data, true).';'.PHP_EOL);
-    }
+
     /**
      * @Desc Cache the data
      */
@@ -261,8 +252,10 @@ class Zk
      * @param string $nodeName
      * @return string
      */
-    public function getConf ($nodeName = '')
+    public function getNodeData ($nodeName = '')
     {
+        $this->init(false);
+
         $data = '';
         $path = $this->zkRootPath. DIRECTORY_SEPARATOR . trim($nodeName, '/');
         if ($this->zk->exists($path)) {

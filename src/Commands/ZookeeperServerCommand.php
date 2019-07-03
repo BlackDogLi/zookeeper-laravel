@@ -17,7 +17,7 @@ class ZookeeperServerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'zookeeper:server {action : start|stop|restart|reload}';
+    protected $signature = 'zookeeper:server {action : start|cache}';
 
     /**
      * The console command description.
@@ -27,17 +27,11 @@ class ZookeeperServerCommand extends Command
     protected $description = 'Zookeeper Cache config';
 
     /**
-     * The console command action. start|stop|restart|reload
+     * The console command action. start|cache
      * 
      * @var string
      */
     protected $action;
-
-    /**
-     * The pid.
-     * @var int
-     */
-    protected  $currentPid;
 
     /**
      * The configs for this package.
@@ -85,7 +79,7 @@ class ZookeeperServerCommand extends Command
     {
         $this->action = $this->argument('action');
 
-        if (! in_array($this->action, ['start', 'stop', 'restart', 'reload'], true)) {
+        if (! in_array($this->action, ['start', 'cache'], true)) {
             $this->error("Invalid argument '{$this->action}' . Expected 'start', 'stop', 'restart'.");
         }
     }
@@ -105,8 +99,22 @@ class ZookeeperServerCommand extends Command
     {
         $zk = $this->laravel->make(Zk::class);
         $zk->run();
-        $config = $zk->getConfig();
-        $this->info("Zoookeeper data cached to {$config['cache']} successfully!");
+        $this->info("Zoookeeper data cached to {$this->config['cache']}/config.php successfully!");
+        $this->info("Please Enter 'Ctrl + C' to Stop ");
+        while (true) {
+            sleep(1);
+        }
     }
+
+    /**
+     * Cache
+     */
+    protected function cache ()
+    {
+        $zk = $this->laravel->make(Zk::class);
+        $zk->cache();
+        $this->info("Zoookeeper data cached to {$this->config['cache']}/config.php successfully!");
+    }
+
 
 }

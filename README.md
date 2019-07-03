@@ -39,8 +39,31 @@ class TesxtController extends controller {
 
     public function test ()
     {
-        $nodeValue = ZK::getNode('usercenter/userhost');
+        $nodeValue = ZK::getNodeData('usercenter/userhost');
     }
 }
 
 ```
+
+## Version 1.1.0 
+
+- zk_config add cache path
+
+    `cache => storage_path('zookeeper')`
+
+- add the Commands
+
+| Command | Description |
+
+| start |Start Zookeeper Server, watch the node and nodeValue |
+| cache |Start Zookeeper, Cache the node and nodeValue to the file |
+
+Now,you can run the following command to start Zookeeper
+
+`$ php artisan zookeeper:server start`
+
+`$ php artisan zookeeper:server cache`
+
+Notice: The zookeeper data cached `storage/zookeeper/config.php`;
+
+

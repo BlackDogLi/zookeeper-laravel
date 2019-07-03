@@ -9,5 +9,6 @@
 return [
     'host' => env('ZK_HOST', '127.0.0.1:2181'),
     'path' => env('ZK_PATH', ''),
-    'version' => env('ZK_VERSION', 'V1.0')
+    'version' => env('ZK_VERSION', 'V1.0'),
+	'cache' => storage_path('zookeeper')
 ];

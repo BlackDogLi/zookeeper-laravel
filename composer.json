@@ -1,11 +1,6 @@
 {
     "name": "zookeeper/laravel-zookeeper",
     "description": "zookeeper for laravel",
-    "keywords":[
-        "zookeeper",
-        "laravel",
-        "zk"
-    ],
     "license": "MIT",
     "authors": [
         {
@@ -15,12 +10,20 @@
 
     ],
     "minimum-stability": "dev",
-    "require": {
-        "php":">=7.0"
-    },
+    "require": {},
     "autoload": {
         "psr-4": {
             "Ly\\Zookeeper\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Ly\\Zookeeper\\ZookeeperServiceProvider"
+            ],
+            "alias": {
+                "zk": "Ly\\Zookeeper\\Facades\\Zk"
+            }
         }
     }
 }
