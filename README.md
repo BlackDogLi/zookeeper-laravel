@@ -56,7 +56,6 @@ class TesxtController extends controller {
 | Command | Description |
 | ------- | --------- |
 | start |Start Zookeeper Server, watch the node and nodeValue |
-
 | cache |Start Zookeeper, Cache the node and nodeValue to the file |
 
 Now,you can run the following command to start Zookeeper
